@@ -1,0 +1,303 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   PORTFOLIO DESIGN TOKENS
+   Source of truth: docs/design-system.md. Every value below cites the
+   section it implements — do not hand-edit a value without updating the
+   doc, and do not introduce a new ad-hoc value anywhere else in the app.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Color — design-system.md §4
+   Light values are the default :root; dark values apply automatically via
+   `prefers-color-scheme` (design-system §11 — no manual toggle yet, see
+   architecture.md §7 "Future Scalability").
+   -------------------------------------------------------------------------- */
+:root {
+  /* Neutral ramp (§4.2) */
+  --canvas: #fafafa;
+  --surface: #f5f5f5;
+  --surface-hover: #ededed;
+  --surface-active: #e4e4e4;
+  --border-subtle: #eaeaea;
+  --border-default: #d9d9d9;
+  /* Dark-mode-only elevation border (§11) — inert in light mode */
+  --border-highlight: transparent;
+  --text-tertiary: #8a8a8e;
+  --text-secondary: #5c5c61;
+  --text-primary: #141416;
+  --text-max-contrast: #000000;
+
+  /* Accent — one hue, one job (§4.3) */
+  --accent-solid: #5b5fef;
+  --accent-hover: #5457dc; /* accent-solid, 8% darker */
+  --accent-subtle: rgb(91 95 239 / 10%);
+  --focus-ring: #5b5fef;
+
+  /* Semantic/system colors — feedback only, never decoration (§4.4) */
+  --success: #16a34a;
+  --warning: #d97706;
+  --error: #dc2626;
+  --info: #5b5fef; /* same hue as accent — no second blue */
+
+  /* Tinted shadows, two-layer: tight low-opacity + soft wide (§4.5) */
+  --shadow-color: 220 43% 11%;
+  --shadow-elevated:
+    0 1px 2px hsl(var(--shadow-color) / 0.06),
+    0 8px 24px hsl(var(--shadow-color) / 0.08);
+  /* Deeper resting state for Card hover lift (components.md §4; animations.md §6.6) */
+  --shadow-elevated-hover:
+    0 4px 8px hsl(var(--shadow-color) / 0.08),
+    0 16px 40px hsl(var(--shadow-color) / 0.12);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --canvas: #0a0a0b;
+    --surface: #141416;
+    --surface-hover: #1c1c1f;
+    --surface-active: #232326;
+    --border-subtle: #232326;
+    --border-default: #34343a;
+    --border-highlight: #2a2a2e; /* replaces shadow as the elevation cue (§11) */
+    --text-tertiary: #8a8a8e;
+    --text-secondary: #b4b4b8;
+    --text-primary: #f5f5f5;
+    --text-max-contrast: #ffffff;
+
+    --accent-solid: #686cf0; /* +8% lightness for dark-canvas contrast */
+    --accent-hover: #6063dd;
+    --accent-subtle: rgb(104 108 240 / 12%);
+    --focus-ring: #686cf0;
+
+    --success: #4ade80;
+    --warning: #fbbf24;
+    --error: #f87171;
+    --info: #686cf0;
+
+    /* Shadows are nearly invisible dark-on-dark — border-highlight does the
+       elevation job instead (§11). Elevated Card adds this border in dark mode. */
+    --shadow-elevated: none;
+    --shadow-elevated-hover: none;
+  }
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-surface-active: var(--surface-active);
+  --color-border-subtle: var(--border-subtle);
+  --color-border-default: var(--border-default);
+  --color-border-highlight: var(--border-highlight);
+  --color-text-tertiary: var(--text-tertiary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-primary: var(--text-primary);
+  --color-text-max-contrast: var(--text-max-contrast);
+  --color-accent-solid: var(--accent-solid);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-subtle: var(--accent-subtle);
+  --color-focus-ring: var(--focus-ring);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+  --color-info: var(--info);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  /* --------------------------------------------------------------------
+     2. Radius — design-system.md §6.5. Named by role, not by size, so
+     intent survives even if the underlying px value is ever retuned.
+     -------------------------------------------------------------------- */
+  --radius-input: 4px;
+  --radius-button: 8px;
+  --radius-card: 12px;
+  --radius-modal: 16px;
+  --radius-pill: 999px;
+
+  /* --------------------------------------------------------------------
+     3. Breakpoints — design-system.md §6.4. Tailwind's default scale is
+     replaced (not extended) so `sm/md/lg` map exactly to this doc's four
+     tiers: mobile (unprefixed, 360–639), tablet (sm, 640–1023),
+     laptop (md, 1024–1439), desktop (lg, 1440+).
+     -------------------------------------------------------------------- */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 1024px;
+  --breakpoint-lg: 1440px;
+
+  /* --------------------------------------------------------------------
+     4. Type scale — design-system.md §5.2. Fluid via clamp() between the
+     mobile-min and desktop-max of each role's stated range (the rule of
+     thumb from §5.2 is baked in: bigger role = lighter weight, tighter
+     tracking, denser line-height).
+     -------------------------------------------------------------------- */
+  --text-display: clamp(2.5rem, calc(2.5rem + (100vw - 22.5rem) * 0.09259), 8.75rem);
+  --text-display--line-height: 1.0;
+  --text-display--letter-spacing: -0.045em;
+  --text-display--font-weight: 300;
+
+  --text-h1: clamp(2rem, calc(2rem + (100vw - 22.5rem) * 0.03704), 4.5rem);
+  --text-h1--line-height: 1.075;
+  --text-h1--letter-spacing: -0.02em;
+  --text-h1--font-weight: 450;
+
+  --text-h2: clamp(1.75rem, calc(1.75rem + (100vw - 22.5rem) * 0.01481), 2.75rem);
+  --text-h2--line-height: 1.15;
+  --text-h2--letter-spacing: -0.015em;
+  --text-h2--font-weight: 500;
+
+  --text-h3: clamp(1.25rem, calc(1.25rem + (100vw - 22.5rem) * 0.00741), 1.75rem);
+  --text-h3--line-height: 1.25;
+  --text-h3--letter-spacing: -0.01em;
+  --text-h3--font-weight: 600;
+
+  --text-body-lg: clamp(1.0625rem, calc(1.0625rem + (100vw - 22.5rem) * 0.00278), 1.25rem);
+  --text-body-lg--line-height: 1.55;
+  --text-body-lg--letter-spacing: 0em;
+  --text-body-lg--font-weight: 400;
+
+  --text-body: 1rem;
+  --text-body--line-height: 1.6;
+  --text-body--letter-spacing: 0em;
+  --text-body--font-weight: 400;
+
+  --text-caption: clamp(0.8125rem, calc(0.8125rem + (100vw - 22.5rem) * 0.00093), 0.875rem);
+  --text-caption--line-height: 1.4;
+  --text-caption--letter-spacing: 0.02em;
+  --text-caption--font-weight: 500;
+
+  --text-mono-meta: clamp(0.75rem, calc(0.75rem + (100vw - 22.5rem) * 0.00185), 0.875rem);
+  --text-mono-meta--line-height: 1.4;
+  --text-mono-meta--letter-spacing: 0em;
+  --text-mono-meta--font-weight: 450;
+}
+
+/* --------------------------------------------------------------------------
+   5. Spacing — design-system.md §6.2 (4·8·12·16·24·32·48·64·96·128·192).
+   No override needed: Tailwind v4's default --spacing base (0.25rem = 4px)
+   already generates every one of these as an exact multiple
+   (p-1=4px, p-2=8px, p-3=12px, p-4=16px, p-6=24px, p-8=32px, p-12=48px,
+   p-16=64px, p-24=96px, p-32=128px, p-48=192px). Semantic aliases below are
+   for the one place spacing is chosen by *role* rather than by scale step:
+   Section's vertical rhythm (§6.2 "between major sections").
+   -------------------------------------------------------------------------- */
+:root {
+  --spacing-section-y-standard: 7rem; /* 112px — mid of the 96–128px band */
+  --spacing-section-y-tight: 4rem; /* 64px — "breathe in" pacing, §architecture 1.2 */
+  --spacing-section-y-full-bleed: 0px; /* hero/full-bleed sections own their own rhythm */
+
+  /* --------------------------------------------------------------------
+     6. Container widths — design-system.md §6.3.
+     -------------------------------------------------------------------- */
+  --width-standard: 1280px;
+  --width-full-bleed: 1600px;
+}
+
+/* ==========================================================================
+   Base styles
+   ========================================================================== */
+
+body {
+  background: var(--color-canvas);
+  color: var(--color-text-primary);
+}
+
+/* GlassCard (components.md §5) — functional exception to design-system §13's
+   anti-glassmorphism rule; only ever composited over media. Fallback for
+   engines without backdrop-filter degrades to a plain opaque surface,
+   never a broken transparent block (components.md §5, Performance). */
+.glass-card {
+  --glass-bg: rgb(255 255 255 / 0.14);
+  --glass-border: rgb(255 255 255 / 0.14);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.glass-card[data-tone="dark"] {
+  --glass-bg: rgb(0 0 0 / 0.16);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass-card {
+    --glass-bg: var(--color-surface);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+/* Focus is a non-negotiable accessibility feature (design-system §10;
+   animations.md §9.3, RM-5) — never suppressed, only ever styled. */
+:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-input);
+}
+
+/* Skip-to-content link (animations.md §5.4 nav overlay context; WCAG bypass
+   block) — visually hidden until keyboard-focused. */
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -3rem;
+  z-index: 100;
+  background: var(--color-accent-solid);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-button);
+  transition: top 150ms ease-out;
+}
+
+.skip-link:focus-visible {
+  top: 1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Belt-and-suspenders global fallback (animations.md RM-1/RM-2/RM-3).
+     Components also check the reactive hook for JS-driven motion; this
+     covers any CSS transition that isn't gated through it. */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ==========================================================================
+   Shared-element page transition (animations.md §5.7) — React's native
+   <ViewTransition> (src/lib/view-transition.tsx), used to morph a
+   ProjectCard into its Case Study hero. Duration set once, globally,
+   since it's the only view transition in the app.
+   ========================================================================== */
+::view-transition-group(*) {
+  animation-duration: 650ms; /* duration.transition, animations.md §2.1 */
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); /* easing.outStandard */
+}
+
+/* Persistent chrome (Navbar) must not participate in the morph — it stays
+   fixed while the project media transitions underneath it. */
+::view-transition-group(site-header) {
+  animation: none;
+  z-index: 100;
+}
+::view-transition-old(site-header) {
+  display: none;
+}
+::view-transition-new(site-header) {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* RM-1 — the morph collapses to an instant swap, per Next's documented pattern. */
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+}
